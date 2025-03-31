@@ -10,6 +10,7 @@ A Python-based tool that automatically generates, refines, and validates malware
 - **Rule Refinement**: Improves initial rules through pattern analysis and optimization
 - **Validation System**: Automatically validates and fixes generated rules
 - **Progress Tracking**: Maintains detailed logs of the generation process
+- **Benign Sample Collection**: Downloads popular PyPI packages to create a dataset of benign code for comparison
 
 ## Installation
 
@@ -77,6 +78,14 @@ Parameters:
 - `--base_path`: Directory path containing malware samples
 - `--output_path`: Directory for clustering output
 
+### Benign Sample Collection
+
+```bash
+python -m rulegen.download_benign
+```
+
+This script downloads the most popular benign Python packages from PyPI to create a dataset of benign code samples. It analyzes existing malware samples to match size characteristics, ensuring the benign dataset has similar properties for effective comparison and rule validation.
+
 ### Rule Generation
 
 ```bash
@@ -96,6 +105,7 @@ Parameters:
   - `Fixer.py`: Validates and fixes syntax errors in rules
   - `client.py`: Communication interface with language model API
   - `cluster_malware.py`: Analysis and clustering of malware samples
+  - `download_benign.py`: Downloads popular PyPI packages for benign code comparison
   - `run.py`: Main execution script, coordinates workflow
 
 ## Requirements
