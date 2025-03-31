@@ -1,13 +1,16 @@
 rule Malicious_Python_Setup_Install_Override {
     meta:
         author = "RuleLLM"
-        description = "Detects malicious Python setup.py files that override the install class to execute encrypted payloads."
-        confidence = 95
-        severity = 90
+        description = "Detects Python setup.py files that override install command for malicious purposes"
+        confidence = 90
+        severity = 80
     strings:
-        $class_override = /class\s+\w+\(install\):/
-        $exec_decrypt = /exec\(Fernet\(.+?\)\.decrypt\(.+?\)\)/
-        $os_check = /if\s+os\.name\s*==\s*["']nt["']/
+        $install_class = "class CustomInstallCommand(install):"
+        $setup_override = "cmdclass={'install': CustomInstallCommand,"
+        $powershell = "powershell -Command"
+        $invoke_webrequest = "Invoke-WebRequest"
+        $start_process = "Start-Process"
     condition:
-        all of them
+        all of ($install_class, $setup_override) and 
+        any of ($powershell, $invoke_webrequest, $start_process)
 }

@@ -1,14 +1,17 @@
 rule Python_Package_Install_Hook {
     meta:
         author = "RuleLLM"
-        description = "Detects Python packages that use setup.py to execute malicious code during installation."
+        description = "Detects suspicious package installation hooks in Python setup.py"
         confidence = 85
-        severity = 75
+        severity = 80
+        reference = "Custom PostInstallCommand class"
+    
     strings:
-        $setup = "setup("
-        $cmdclass = "cmdclass="
-        $install = "install"
-        $run_method = "def run("
+        $install_hook1 = "cmdclass={'install': PostInstallCommand}" nocase wide ascii
+        $install_hook2 = "class PostInstallCommand(install)" nocase wide ascii
+        $setup = "setup(" nocase wide ascii
+    
     condition:
-        all of ($setup, $cmdclass, $install, $run_method)
+        all of ($install_hook1, $setup) or 
+        all of ($install_hook2, $setup)
 }

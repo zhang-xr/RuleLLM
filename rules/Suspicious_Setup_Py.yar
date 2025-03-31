@@ -1,14 +1,18 @@
 rule Suspicious_Setup_Py {
     meta:
         author = "RuleLLM"
-        description = "Detects suspicious setup.py files that may contain malicious code"
-        confidence = 80
-        severity = 75
+        description = "Detects suspicious patterns in Python setup.py files, including custom install commands and external dependencies"
+        confidence = "80"
+        severity = "70"
+
     strings:
-        $setup_import = "from setuptools import setup"
-        $tempfile_import = "from tempfile import NamedTemporaryFile"
-        $system_import = "from os import system"
-        $executable_import = "from sys import executable"
+        $setup_requires = "setup_requires"
+        $install_requires = "install_requires"
+        $cmdclass = "cmdclass"
+        $custom_install = "CustomInstallCommand"
+
     condition:
-        all of ($setup_import, $tempfile_import, $system_import, $executable_import)
+        // Match suspicious setup.py patterns
+        any of ($setup_requires, $install_requires) and
+        all of ($cmdclass, $custom_install)
 }

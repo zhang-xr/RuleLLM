@@ -1,13 +1,13 @@
 rule Webhook_Exfiltration {
     meta:
         author = "RuleLLM"
-        description = "Detects webhook URLs used for data exfiltration in Python scripts"
-        confidence = 85
-        severity = 80
-
+        description = "Detects code attempting to exfiltrate data to a webhook URL."
+        confidence = 80
+        severity = 85
     strings:
-        $webhook_url = /https?:\/\/webhook\.site\/[a-f0-9\-]+/
-
+        $webhook_domain = "webhook.site"
+        $curl_post = /curl\s+-X\s+POST\s+-d\s+/
+        $http_post = /POST\s+-d\s+/
     condition:
-        $webhook_url
+        ($webhook_domain and $curl_post) or ($webhook_domain and $http_post)
 }

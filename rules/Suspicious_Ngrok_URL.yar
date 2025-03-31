@@ -1,14 +1,11 @@
 rule Suspicious_Ngrok_URL {
     meta:
         author = "RuleLLM"
-        description = "Detects the use of suspicious Ngrok URLs for data exfiltration"
-        confidence = 90
-        severity = 85
-
+        description = "Detects suspicious ngrok.io URLs commonly used in malicious payloads"
+        confidence = 85
+        severity = 80
     strings:
-        $ngrok_url = /https?:\/\/[a-f0-9]+\.ngrok\.(app|io)/  // Matches Ngrok URLs
-
+        $ngrok_pattern = /https:\/\/[a-z0-9]{12}\.ngrok\.(io|app|com|net|org)/
     condition:
-        $ngrok_url and
-        filesize < 10KB
+        $ngrok_pattern
 }

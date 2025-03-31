@@ -1,16 +1,14 @@
 rule Malicious_Python_Package_Install {
     meta:
         author = "RuleLLM"
-        description = "Detects Python packages with custom install classes that execute malicious commands."
-        confidence = 90
-        severity = 95
+        description = "Detects malicious Python package installation with custom install class"
+        confidence = 95
+        severity = 90
     strings:
-        $custom_install = "class CustomInstall(install)"
-        $install_run = "def run(self):"
-        $os_system = "os.system"
-        $base64_encode = "base64.b64encode"
-        $reverse_shell = /s\.connect\(\([\'\"].*[\'\"]\,\s*\d+\)\)/
+        $install_class = /class \w+InstallStrat\(install\):/ nocase
+        $cmdclass = /cmdclass\s*=\s*\{['"]install['"]:\s*\w+InstallStrat\}/ nocase
+        $main_call = /from \w+ import main\s*main\(\)/ nocase
+        $setup = /setup\(/ nocase
     condition:
-        all of ($custom_install, $install_run, $os_system) and 
-        any of ($base64_encode, $reverse_shell)
+        all of them and filesize < 10KB
 }

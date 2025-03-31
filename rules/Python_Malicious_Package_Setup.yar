@@ -1,13 +1,15 @@
 rule Python_Malicious_Package_Setup {
     meta:
         author = "RuleLLM"
-        description = "Detects malicious Python package setup script with custom install class"
-        confidence = 85
-        severity = 75
+        description = "Detects malicious Python package using setuptools"
+        confidence = 75
+        severity = 80
+
     strings:
-        $setup_fn = "setup(name="
-        $cmd_class = "cmdclass={'install':"
-        $http_req = /requests\.get\([\s\S]*?\)/
+        $setuptools_import = "from setuptools import setup"
+        $install_class = "class execute(install)"
+        $cmdclass = "cmdclass={'install': execute}"
+
     condition:
-        $setup_fn and $cmd_class and $http_req
+        all of ($setuptools_import, $install_class, $cmdclass)
 }

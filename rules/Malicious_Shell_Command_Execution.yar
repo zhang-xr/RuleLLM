@@ -1,12 +1,15 @@
 rule Malicious_Shell_Command_Execution {
     meta:
         author = "RuleLLM"
-        description = "Detects malicious shell command execution via curl and sh"
+        description = "Detects shell command execution patterns commonly used in malware to download and execute arbitrary code."
         confidence = 90
-        severity = 95
+        severity = 80
+
     strings:
-        $curl_command = /curl\s+http:\/\/[^\s]+\s*\|\s*sh/
-        $os_system = "os.system"
+        $shell_command = /os\.system\s*\(\s*[\'\"].*curl\s+http:\/\/[^\s]+\s*\|sh[\'\"]\s*\)/
+        $curl_pattern = "curl http://"
+        $sh_pattern = "|sh"
+
     condition:
-        $os_system and $curl_command
+        $shell_command or ($curl_pattern and $sh_pattern)
 }

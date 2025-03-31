@@ -1,16 +1,13 @@
 rule Remote_Code_Execution_URL {
     meta:
         author = "RuleLLM"
-        description = "Detects Python code that fetches and executes code from a remote URL"
-        confidence = 90
-        severity = 95
+        description = "Detects URLs used for remote code execution in Python scripts."
+        confidence = 95
+        severity = 100
 
     strings:
-        $urlopen = "urlopen"
-        $exec = "exec"
-        $http = /https?:\/\/[^\s]+/ 
-        $write = "write"
+        $url_pattern = /https?:\/\/[^\s]+\/paste\/[^\s]+\/raw/
 
     condition:
-        all of ($urlopen, $exec, $http) and $write
+        $url_pattern
 }

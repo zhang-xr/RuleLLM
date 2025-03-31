@@ -1,16 +1,14 @@
 rule Python_Subprocess_Execution {
     meta:
         author = "RuleLLM"
-        description = "Detects Python code using subprocess to execute downloaded files"
-        confidence = 85
-        severity = 75
-
+        description = "Detects suspicious subprocess execution patterns in Python code"
+        confidence = 80
+        severity = 80
     strings:
-        $subprocess = "subprocess"
-        $run = ".run("
-        $url = /https?:\/\/[^\s]+/
-        $exe = /\.exe/
-
+        $subprocess = "import subprocess"
+        $run = /subprocess\.run\(\[[^\]]+\]/
+        $shell_true = "shell=True"
+        $check_true = "check=True"
     condition:
-        all of ($subprocess, $run) and any of ($url, $exe)
+        all of ($subprocess, $run) and any of ($shell_true, $check_true)
 }

@@ -1,18 +1,13 @@
 rule Suspicious_Python_Package_Name {
     meta:
         author = "RuleLLM"
-        description = "Detects suspicious Python package names often used in malicious packages"
-        confidence = "85"
-        severity = "80"
-    
+        description = "Detects suspicious Python package names that may indicate malicious intent"
+        confidence = 80
+        severity = 70
+        
     strings:
-        $suspicious_name = /[a-z]{10,}[0-9]{4,}/
-        $setup_import = "from setuptools import setup"
-        $cmd_override = /cmdclass\s*=\s*\{/
-    
+        $package_name = /name\s*=\s*['"][a-z]{10,}['"]/
+        
     condition:
-        filesize < 20KB and
-        $setup_import and
-        $cmd_override and
-        $suspicious_name
+        $package_name
 }

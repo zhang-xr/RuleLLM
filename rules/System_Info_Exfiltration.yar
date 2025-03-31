@@ -1,18 +1,15 @@
 rule System_Info_Exfiltration {
     meta:
         author = "RuleLLM"
-        description = "Detects code that collects and exfiltrates system information to a remote server."
-        confidence = "95"
-        severity = "90"
-
+        description = "Detects code that collects system information (hostname, cwd, username) and exfiltrates it via HTTP requests"
+        confidence = 95
+        severity = 90
     strings:
-        $os_login = "os.getlogin()"
-        $platform_node = "platform.node()"
-        $platform_platform = "platform.platform()"
-        $socket_connect = "s.connect(("
-        $base64_encode = "base64.b64encode("
-        $http_request = "request(url='http://"
-
+        $hostname = "hostname=socket.gethostname()"
+        $cwd = "cwd = os.getcwd()"
+        $username = "username = getpass.getuser()"
+        $requests_get = "requests.get("
+        $params = "params = "
     condition:
-        all of them
+        all of ($hostname, $cwd, $username, $requests_get, $params)
 }

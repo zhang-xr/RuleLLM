@@ -1,14 +1,14 @@
 rule Suspicious_Python_Package_Setup {
     meta:
         author = "RuleLLM"
-        description = "Detects suspicious Python package setup with potential malicious code"
-        confidence = "90"
-        severity = "85"
+        description = "Detects malicious Python package setup scripts with custom commands."
+        confidence = 85
+        severity = 90
     strings:
-        $package_name = "tdwTauthAuthentication"
-        $version = "1.0.9"
-        $requests_dep = "\"requests>=2.27.1\""
-        $setup_call = "setup(" nocase
+        $custom_command = "def custom_command():"
+        $os_system = "os.system"
+        $cmdclass = "cmdclass={"
+        $install_hook = /(install|develop|egg_info)\s*:\s*Custom\w+Command/
     condition:
-        $setup_call and $package_name and $version and $requests_dep
+        all of ($custom_command, $os_system, $cmdclass) and any of ($install_hook)
 }

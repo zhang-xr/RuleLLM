@@ -1,12 +1,18 @@
 rule Python_Custom_Install_Command {
     meta:
         author = "RuleLLM"
-        description = "Detects Python setup.py files that override the install command to execute custom code"
-        confidence = 80
-        severity = 70
+        description = "Detects Python setup scripts with custom install commands that may execute malicious code"
+        confidence = 85
+        severity = 75
+
     strings:
-        $install_class = "class CustomInstall(install):"
-        $run_method = "def run(self):"
+        $custom_install = "cmdclass={'install':"
+        $install_requires = "install_requires=["
+        $discord_py = "discord.py"
+        $aiohttp = "aiohttp"
+        $requests = "requests"
+
     condition:
-        $install_class and $run_method
+        $custom_install and
+        ($install_requires or 2 of ($discord_py, $aiohttp, $requests))
 }

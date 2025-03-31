@@ -1,12 +1,14 @@
 rule Suspicious_Domain_Exfiltration {
     meta:
         author = "RuleLLM"
-        description = "Detects suspicious domains used for data exfiltration in Python code"
-        confidence = 85
+        description = "Detects HTTP POST requests to suspicious, randomly generated domains."
+        confidence = 95
         severity = 90
+
     strings:
-        $oastify_domain = "oastify.com"
-        $http_request = /https?:\/\/[a-zA-Z0-9]{16,}\.oastify\.com/
+        $suspicious_domain = /http:\/\/[a-z0-9]{32,}\.oast\.fun/ ascii
+        $http_post = "requests.post" ascii
+
     condition:
-        any of them
+        all of them
 }

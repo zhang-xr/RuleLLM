@@ -1,16 +1,14 @@
 rule Malicious_Python_Package_Install_Hook {
     meta:
         author = "RuleLLM"
-        description = "Detects Python packages with malicious install hooks that collect and exfiltrate system information"
+        description = "Detects malicious Python package setup using custom install hooks"
         confidence = 90
         severity = 80
     strings:
-        $class_def = "class CustomInstall(install):"
-        $hostname = "socket.gethostname()"
-        $cwd = "os.getcwd()"
-        $username = "getpass.getuser()"
-        $requests = "requests.get("
-        $cmdclass = "cmdclass={'install': CustomInstall}"
+        $install_hook = "cmdclass={'develop': AfterDevelop, 'install': AfterInstall,}"
+        $base64_decode = "base64.b64decode"
+        $os_system = "os.system"
+        $custom_hook = /(AfterDevelop|AfterInstall)/
     condition:
-        all of them and filesize < 10KB
+        all of them
 }

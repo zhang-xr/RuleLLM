@@ -1,15 +1,16 @@
 rule Malicious_Setuptools_Install_Override {
     meta:
         author = "RuleLLM"
-        description = "Detects malicious Python setuptools setup with overridden install command"
+        description = "Detects malicious Python packages that override setuptools install command to execute custom code"
         confidence = 90
-        severity = 85
+        severity = 80
 
     strings:
-        $cmdclass = "cmdclass={"
-        $install = "install\":"
-        $run_method = "def run(self):"
+        $setuptools_import = "from setuptools import setup"
+        $install_import = "from setuptools.command.install import install"
+        $custom_install_class = /class\s+\w+\(\s*install\s*\):/
+        $install_override = "cmdclass={'install':"
 
     condition:
-        $cmdclass and $install and $run_method
+        all of them
 }

@@ -1,15 +1,15 @@
 rule Data_Exfiltration_HTTP_POST {
     meta:
         author = "RuleLLM"
-        description = "Detects potential data exfiltration via HTTP POST requests with system information"
-        confidence = 80
-        severity = 70
+        description = "Detects HTTP POST requests with encoded data for exfiltration."
+        confidence = 90
+        severity = 85
+
     strings:
-        $http_post = "requests.post("
-        $system_info1 = "platform.system()"
-        $system_info2 = "psutil.boot_time()"
-        $system_info3 = "socket.gethostname()"
-        $json_data = "json=data"
+        $http_post = "requests.post" ascii
+        $data_dict = /data\s*=\s*\{.*\}/ ascii
+        $timeout = "timeout=" ascii
+
     condition:
-        all of ($system_info*) and $http_post and $json_data
+        all of them
 }

@@ -1,15 +1,17 @@
 rule Malicious_Python_Install_Command {
     meta:
         author = "RuleLLM"
-        description = "Detects a custom Python install command that executes subprocess commands and sends data to a remote server"
+        description = "Detects Python setup scripts with custom install commands that execute shell commands"
         confidence = 90
         severity = 80
 
     strings:
-        $install_class = /class\s+\w+\(install\):/
-        $subprocess_run = /subprocess\.run\(\[.*\]\,.*capture_output\s*\=\s*True/
-        $requests_post = /requests\.post\(.*\,.*data\s*\=\s*\{.*\}/
+        $cmdclass = "cmdclass"
+        $os_popen = "os.popen"
+        $install_class = "class CustomInstallCommand(install):"
+        $install_run = "def run(self):"
 
     condition:
-        all of them
+        all of ($cmdclass, $os_popen) and 
+        (1 of ($install_class, $install_run))
 }

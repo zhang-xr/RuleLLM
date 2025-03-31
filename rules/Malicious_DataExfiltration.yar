@@ -1,14 +1,18 @@
 rule Malicious_DataExfiltration {
     meta:
         author = "RuleLLM"
-        description = "Detects code that collects system information and exfiltrates it to a remote server"
+        description = "Detects suspicious data collection and exfiltration via HTTP request"
         confidence = "90"
         severity = "80"
+    
     strings:
-        $ip_collection = /socket\.socket\(socket\.AF_INET, socket\.SOCK_DGRAM\)/
-        $system_info = /os\.getlogin|platform\.node|platform\.uname|os\.getcwd/
-        $base64_encode = /base64\.b64encode\(.+\)/
-        $remote_request = /requests\.get\(["']http:\/\/.+["']\)/
+        $platform_node = "platform.node()"
+        $platform_uname = "platform.uname()"
+        $ifconfig_cmd = "os.popen(\"ifconfig|grep inet|grep -v inet6\")"
+        $base64_encode = "base64.b64encode(d.encode())"
+        $suspicious_request = /requests\.get\(\"http:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/v\/%s\"/
+    
     condition:
-        all of them
+        all of them and 
+        #suspicious_request > 0
 }

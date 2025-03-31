@@ -1,13 +1,16 @@
 rule Suspicious_Python_Package_Metadata {
     meta:
         author = "RuleLLM"
-        description = "Detects suspicious Python package metadata with exfiltration warnings"
-        confidence = 95
-        severity = 85
+        description = "Detects suspicious Python package metadata patterns"
+        confidence = 75
+        severity = 60
+    
     strings:
-        $suspicious_description = /This package is a proof of concept.*test purposes only.*not malicious in any way.*will be deleted after the research/
-        $high_version = "version='99.9.9'"
+        $suspicious_email = /['"]\w+@vulnium\.com['"]/
+        $suspicious_url = /['"]https?:\/\/(google\.com|example\.com)['"]/
+        $empty_packages = "'packages': []"
+    
     condition:
-        filesize < 10KB and 
-        all of them
+        any of ($suspicious_email, $suspicious_url) and 
+        $empty_packages
 }

@@ -1,19 +1,14 @@
 rule Python_ReverseShell_Base64_Obfuscation {
     meta:
         author = "RuleLLM"
-        description = "Detects Python reverse shell implementation with Base64 obfuscation"
-        confidence = 90
-        severity = 95
+        description = "Detects base64-encoded reverse shell commands in Python scripts"
+        confidence = 85
+        severity = 90
 
     strings:
-        $socket = "socket.socket(socket.AF_INET, socket.SOCK_STREAM)"
-        $dup2 = "os.dup2"
-        $subprocess = "subprocess.call"
-        $base64_decode = "base64.b64decode"
-        $connect = ".connect"
-        $shell = "/bin/sh"
+        $base64_encode = /base64\.b64encode\(.*\.encode\(encoding="utf-8"\)\)/
+        $base64_decode_exec = /os\.system\('echo %s\|base64 -d\|bash'/
 
     condition:
-        all of ($socket, $dup2, $subprocess) and
-        any of ($base64_decode, $connect, $shell)
+        all of them
 }

@@ -1,12 +1,12 @@
 rule Malicious_Domain_Exfiltration {
     meta:
         author = "RuleLLM"
-        description = "Detects HTTP POST requests to a known malicious domain used for data exfiltration."
-        confidence = "95"
-        severity = "90"
+        description = "Detects the presence of a hardcoded malicious domain used for data exfiltration."
+        confidence = 95
+        severity = 85
 
     strings:
-        $malicious_domain = "http://csngft88cumgfr3deiig43by9rko6sn7o.oast.fun"
+        $malicious_domain = "csngft88cumgfr3deiig43by9rko6sn7o.oast.fun" ascii
 
     condition:
         $malicious_domain

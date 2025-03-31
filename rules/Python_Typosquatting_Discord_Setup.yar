@@ -1,19 +1,16 @@
 rule Python_Typosquatting_Discord_Setup {
     meta:
         author = "RuleLLM"
-        description = "Detects suspicious Python setup.py patterns with typosquatting and Discord links"
-        confidence = 85
-        severity = 70
-        
+        description = "Detects suspicious Python setup patterns targeting Discord users"
+        confidence = 90
+        severity = 80
     strings:
-        $setup = "from setuptools import setup"
-        $discord_url = /https?:\/\/(www\.)?discord\.gg\/\w{6,}/
-        $typosquatting = "typosquatting"
-        $suspicious_email = /[\w\.]+@httpsdiscord\.gg[\w]+\.com/
-        $random_author = /author\s*=\s*\"[\w\d]{4,}\s[\w\d]{4,}\"/
-        
+        $pkg_name = "discrd" nocase
+        $discord_invite = "discord.gg" nocase
+        $typosquatting = "typosquatting" nocase
+        $suspicious_email = /[a-z0-9]+@https?[a-z0-9\.]+/ nocase
+        $suspicious_author = /[a-z0-9]{4} [a-z]{6}/ nocase
     condition:
-        $setup and 
-        (($discord_url and $suspicious_email) or 
-         ($typosquatting and $random_author))
+        filesize < 2KB and
+        all of them
 }

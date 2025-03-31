@@ -1,13 +1,13 @@
 rule Suspicious_Python_Setup_Metadata {
     meta:
         author = "RuleLLM"
-        description = "Detects suspicious metadata in Python setup.py files, such as random strings for package name, author, and description."
-        confidence = 85
-        severity = 75
+        description = "Detects suspicious metadata in Python setup.py files"
+        confidence = 75
+        severity = 80
     strings:
-        $random_name = /name\s*=\s*["'][a-zA-Z]{6,}["']/
-        $random_author = /author\s*=\s*["'][a-zA-Z]{6,}["']/
-        $random_description = /description\s*=\s*["'][a-zA-Z]{10,}["']/
+        $exploit_desc = /description\s*=\s*[\'\"].*exploit.*[\'\"]/
+        $custom_install = "cmdclass={'install':"
+        $suspicious_url = /url\s*=\s*[\'\"].*(github|gitlab).*[\'\"]/
     condition:
-        all of them
+        any of them
 }

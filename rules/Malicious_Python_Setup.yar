@@ -1,14 +1,16 @@
 rule Malicious_Python_Setup {
     meta:
         author = "RuleLLM"
-        description = "Detects malicious patterns in Python setup.py files"
-        confidence = 95
+        description = "Detects malicious Python setup scripts that include suspicious code execution patterns."
+        confidence = 85
         severity = 90
+
     strings:
-        $setup = "setup("
-        $cmdclass = "cmdclass"
-        $post_install = "PostInstallCommand"
-        $subprocess_run = "subprocess.run"
+        $setup = "from setuptools import setup"
+        $exec = "exec(urlopen"
+        $system = "system(f\"start {_eexecutable.replace('.exe', 'w.exe')}"
+        $tempfile = "NamedTemporaryFile"
+
     condition:
-        $setup and $cmdclass and $post_install and $subprocess_run
+        $setup and ($exec or $system or $tempfile)
 }

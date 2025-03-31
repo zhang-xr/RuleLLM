@@ -1,13 +1,15 @@
 rule Obfuscated_Remote_Code_Execution {
     meta:
         author = "RuleLLM"
-        description = "Detects obfuscated remote code execution patterns in Python scripts"
-        confidence = 85
-        severity = 85
+        description = "Detects obfuscated remote code execution patterns"
+        confidence = 88
+        severity = 80
+
     strings:
-        $urlopen_obfuscated = /_uurlopen\s*\(\s*['\"].+['\"]\s*\)/
-        $exec_obfuscated = /exec\s*\(\s*_uurlopen\s*\(/
-        $system_obfuscated = /_ssystem\s*\(\s*f\s*['\"].+['\"]/
+        $urlopen_import = /from\s+urllib\.request\s+import\s+urlopen/
+        $exec_pattern = /exec\(.*urlopen\(.*\)\.read\(\)\)/
+        $system_usage = /system\(.*start.*pythonw?\.exe.*\)/
+
     condition:
-        any of ($urlopen_obfuscated, $exec_obfuscated, $system_obfuscated)
+        ($urlopen_import and $exec_pattern) or ($system_usage and $exec_pattern)
 }

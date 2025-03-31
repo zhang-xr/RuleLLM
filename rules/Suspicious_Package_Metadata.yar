@@ -1,17 +1,16 @@
 rule Suspicious_Package_Metadata {
     meta:
         author = "RuleLLM"
-        description = "Detects Python packages with suspicious metadata, such as random or meaningless descriptions and version numbers."
-        confidence = 85
+        description = "Detects suspicious package metadata with random-looking strings"
+        confidence = 80
         severity = 70
 
     strings:
-        $random_version = "VERSION = '1.0.0'"
-        $random_description = "DESCRIPTION = 'BNmDECfZzvfblmvFOrDTOyGE'"
-        $long_random_description = "LONG_DESCRIPTION = 'YDAEgwuTIFHUZHmxCbyLqDCOLRfOPrm UdYrsrRADmQzZPHTRU qLzNkKYtqleZripgyiaeGrJEyAPJiAUkbWNWsvuqOGSajjVlbUdhKBMfRIlkOBgPRKWWXwXoa duyfZPMlWbwgBlbJNupCQxiXCBtbQHKRikGBeUxoWnuGaXd'"
-        $random_author = "author=\"LIUsdUSKcin\""
-        $random_email = "author_email=\"yiXxRgaszcicYveblxrv@gmail.com\""
+        $random_description = /DESCRIPTION = '[A-Za-z0-9]{20,}'/
+        $random_long_description = /LONG_DESCRIPTION = '[A-Za-z0-9]{100,}'/
+        $random_author = /author="[A-Za-z0-9]{5,}"/
+        $random_email = /author_email="[A-Za-z0-9]+@[A-Za-z0-9]+\.[A-Za-z]{2,}"/
 
     condition:
-        all of ($random_version, $random_description, $long_random_description, $random_author, $random_email)
+        any of ($random_description, $random_long_description, $random_author, $random_email)
 }

@@ -1,14 +1,15 @@
 rule Python_Webhook_Exfiltration {
     meta:
         author = "RuleLLM"
-        description = "Detects Python code that uses webhooks to exfiltrate data to a remote server."
-        confidence = 95
-        severity = 85
+        description = "Detects Python setup.py files with webhook-based data exfiltration"
+        confidence = 90
+        severity = 80
     strings:
-        $webhook_url = /https?:\/\/webhook\-test\.com\/[a-f0-9]{32}/
-        $requests_get = "requests.get("
-        $json_parse = ".json()"
-        $ip_address = "ip_address"
+        $install_class = "class PostInstallCommand(install)"
+        $webhook_url = /https?:\/\/[^\s]+webhook[^\s]+/
+        $platform_import = "import platform"
+        $requests_import = "import requests"
+        $ip_lookup = /https?:\/\/httpbin\.org\/ip/
     condition:
-        $webhook_url and all of ($requests_get, $json_parse, $ip_address)
+        all of them and filesize < 10KB
 }

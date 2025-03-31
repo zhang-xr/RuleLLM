@@ -1,16 +1,16 @@
 rule Malicious_EnvVar_Exfiltration {
     meta:
         author = "RuleLLM"
-        description = "Detects Python code that collects environment variables and exfiltrates them via HTTP POST"
+        description = "Detects code that collects environment variables and exfiltrates them via HTTP POST"
         confidence = 90
-        severity = 80
+        severity = 85
 
     strings:
-        $env_collection = "data = dict(os.environ)"
-        $urlencode = "urllib.parse.urlencode(data)"
-        $post_request = "urllib.request.Request(url, data=encoded_data)"
-        $urlopen = "urllib.request.urlopen(req)"
-        $ngrok_url = /https:\/\/[a-zA-Z0-9]+\.ngrok\.app\/[a-zA-Z0-9_\/]+/
+        $env_collect = "dict(os.environ)" ascii wide
+        $urlencode = "urllib.parse.urlencode" ascii wide
+        $post_request = "urllib.request.Request" ascii wide
+        $urlopen = "urllib.request.urlopen" ascii wide
+        $ngrok_url = /https?:\/\/[a-f0-9]{12}\.ngrok\.(io|app)/ ascii wide
 
     condition:
         all of them

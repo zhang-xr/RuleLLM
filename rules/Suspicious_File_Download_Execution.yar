@@ -1,16 +1,13 @@
 rule Suspicious_File_Download_Execution {
     meta:
         author = "RuleLLM"
-        description = "Detects patterns indicating file download and execution via PowerShell."
+        description = "Detects suspicious file download and execution patterns"
         confidence = 95
         severity = 90
-    
     strings:
-        $invoke_webrequest = "Invoke-WebRequest"
-        $invoke_expression = "Invoke-Expression"
-        $outfile = "-OutFile"
-        $http_url = /http[s]?:\/\/[^\s"]+\.exe/
-    
+        $remote_url = /https?:\/\/[^\s]+\.exe/
+        $file_write = /open\(.*,\s*['"]wb['"]\)\.write\(/
+        $file_execute = /call\(.*\.exe\)/
     condition:
-        any of ($invoke_webrequest, $invoke_expression, $outfile) and $http_url
+        all of them
 }

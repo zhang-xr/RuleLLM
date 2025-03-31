@@ -1,15 +1,17 @@
 rule Python_Base64_Exfiltration {
     meta:
         author = "RuleLLM"
-        description = "Detects base64 encoding of data for exfiltration in Python scripts"
-        confidence = 95
-        severity = 85
+        description = "Detects Base64-encoded strings and functions used to encode system information for potential exfiltration."
+        confidence = 85
+        severity = 75
+
     strings:
-        $base64_encode = "base64.b64encode"
-        $http_request = "requests.get"
-        $decode_call = ".decode()"
-        $url_param = "?data="
+        $base64_func = "def to_base64_subdomain(input_string):"
+        $base64_encode = "base64.urlsafe_b64encode"
+        $base64_decode = "base64.b64decode"
+        $encoded_string = /[A-Za-z0-9+\/]{20,}={0,2}/
+
     condition:
-        all of ($base64_encode, $http_request) and
-        any of ($decode_call, $url_param)
+        ($base64_func or $base64_encode or $base64_decode) and 
+        any of ($encoded_string)
 }

@@ -1,14 +1,12 @@
 rule Malicious_Python_Setup_Dependencies {
     meta:
         author = "RuleLLM"
-        description = "Detects Python setup scripts with suspicious dependencies commonly used in malicious packages."
-        confidence = 80
-        severity = 70
+        description = "Detects suspicious dependencies in Python setup scripts"
+        confidence = 85
+        severity = 80
     strings:
-        $discord = "discord"
-        $aiohttp = "aiohttp"
-        $sockets = "sockets"
-        $setup = "setup("
+        $suspicious_dependency = /pip\s+install\s+(pycryptodome|pyinstaller|py2exe)/ nocase
+        $setup_script = "from setuptools import setup"
     condition:
-        all of ($discord, $aiohttp, $sockets) and $setup
+        $setup_script and $suspicious_dependency
 }

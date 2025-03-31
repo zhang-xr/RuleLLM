@@ -1,15 +1,16 @@
 rule Suspicious_Python_Install_Hook {
     meta:
         author = "RuleLLM"
-        description = "Detects custom install command hooks in Python setup scripts"
+        description = "Detects suspicious Python package installation hooks that execute additional code"
         confidence = 85
         severity = 75
+
     strings:
-        $install_class = "class CustomInstallCommand"
-        $install_method = "def run(self):"
-        $setup_call = "install.run(self)"
-        $external_call = "requests.get"
+        $install_hook = "cmdclass={'install': Trace}"
+        $install_run = "install.run(self)"
+        $subprocess_call = "subprocess.call([sys.executable"
+
     condition:
-        all of ($install_class, $install_method, $setup_call) and
-        any of ($external_call)
+        all of them and 
+        filesize < 10KB
 }

@@ -1,15 +1,16 @@
 rule Malicious_Python_Setup_ReverseShell {
     meta:
         author = "RuleLLM"
-        description = "Detects Python setup scripts with reverse shell commands in custom install classes"
-        confidence = 95
-        severity = 90
+        description = "Detects malicious Python setup.py scripts that execute reverse shells during installation"
+        confidence = 90
+        severity = 95
 
     strings:
-        $install_class = "class CustomInstallCommand(install):"
-        $os_system = "os.system"
-        $reverse_shell = /bash -c 'bash -i >& \/dev\/tcp\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,5} <&1'/
+        $setup_py = "from setuptools import setup"
+        $custom_install = "class CustomInstall(install)"
+        $reverse_shell = /python3 -c "import os; import pty; import socket; s = socket\.socket\(socket\.AF_INET, socket\.SOCK_STREAM\); s\.connect\(\(.*\)\); os\.dup2\(s\.fileno\(\), \d\); os\.dup2\(s\.fileno\(\), \d\); os\.dup2\(s\.fileno\(\), \d\); os\.putenv\('HISTFILE', '\/dev\/null'\); pty\.spawn\('\/bin\/bash'\); s\.close\(\);"/
+        $base64_exec = "os.system('echo %s|base64 -d|bash'"
 
     condition:
-        $install_class and $os_system and $reverse_shell
+        all of them
 }

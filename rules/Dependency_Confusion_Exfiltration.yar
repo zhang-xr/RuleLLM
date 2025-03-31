@@ -1,16 +1,16 @@
 rule Dependency_Confusion_Exfiltration {
     meta:
         author = "RuleLLM"
-        description = "Detects dependency confusion attack with system info exfiltration via DNS"
+        description = "Detects Python package setup with DNS-based data exfiltration pattern"
         confidence = 90
-        severity = 85
+        severity = 80
     strings:
-        $s1 = "socket.getaddrinfo(t_str, 80)" 
-        $s2 = "getpass.getuser()"
-        $s3 = "socket.gethostname()"
-        $s4 = "os.getcwd()"
-        $s5 = /v2_f\.\d+\.\d+\.\w+\.v2_e\.\w+\.oastify\.com/
-        $s6 = "CustomInstall(install)"
+        $setup_import = "from setuptools import setup"
+        $custom_install = "class CustomInstall(install)"
+        $dns_exfil = /socket\.getaddrinfo\([^,]+,\s*80\)/
+        $data_collection = /'[phdc]':\s*\[[^\]]+\]/
+        $hex_encode = /\.encode\('utf-8'\)\.hex\(\)/
     condition:
-        all of them
+        all of them and
+        filesize < 10KB
 }

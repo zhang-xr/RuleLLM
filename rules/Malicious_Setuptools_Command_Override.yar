@@ -1,17 +1,14 @@
 rule Malicious_Setuptools_Command_Override {
     meta:
         author = "RuleLLM"
-        description = "Detects malicious overrides of setuptools commands in Python packages"
-        confidence = 90
-        severity = 80
-
+        description = "Detects malicious override of setuptools install/develop commands"
+        confidence = 85
+        severity = 75
     strings:
+        $install_override = /class\s+\w+\(install\):/
+        $develop_override = /class\s+\w+\(develop\):/
+        $cmdclass = "cmdclass"
         $setuptools_setup = "setuptools.setup"
-        $cmdclass_dict = "cmdclass={"
-        $install_override = /class .*\(install\):/
-        $develop_override = /class .*\(develop\):/
-
     condition:
-        $setuptools_setup and $cmdclass_dict and
-        ($install_override or $develop_override)
+        all of ($install_override, $develop_override, $cmdclass, $setuptools_setup)
 }

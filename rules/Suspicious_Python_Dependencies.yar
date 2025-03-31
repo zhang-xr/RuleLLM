@@ -1,15 +1,18 @@
 rule Suspicious_Python_Dependencies {
     meta:
         author = "RuleLLM"
-        description = "Detects suspicious Python package dependencies"
-        confidence = 85
-        severity = 80
-        
+        description = "Detects Python packages with suspicious dependencies like gitpython and discord.py"
+        confidence = 80
+        severity = 75
+
     strings:
-        $discord_dep = "discord.py"
-        $aiohttp_dep = "aiohttp"
-        $install_reqs = "install_requires=["
-        
+        $gitpython = "gitpython" nocase
+        $discordpy = "discord.py" nocase
+        $aiohttp = "aiohttp" nocase
+        $install_requires = "install_requires=[" nocase
+
     condition:
-        $install_reqs and any of ($discord_dep, $aiohttp_dep)
+        all of ($gitpython, $discordpy, $aiohttp) and
+        $install_requires and
+        filesize < 10KB
 }

@@ -1,13 +1,15 @@
 rule Malicious_Base64_URL_Construction {
     meta:
         author = "RuleLLM"
-        description = "Detects base64 URL construction commonly used in malicious scripts"
+        description = "Detects base64-decoded URL construction with hostname concatenation, commonly used in malware for C2 communication."
         confidence = 90
         severity = 80
+
     strings:
-        $base64_decode = "base64.b64decode"
-        $url_construction = /url\s*=\s*base64\.b64decode\(.*\)\.decode\(.*\)/
-        $hostname_check = /f'\?h=\{hostname\}'/
+        $b64_decode = "base64.b64decode"
+        $url_concat = /url\s*=\s*base64\.b64decode\(.*\)\.decode\(.*\)\s*\+\s*['\"]\?h=.*/
+        $hostname = "socket.gethostname()"
+
     condition:
         all of them
 }

@@ -1,14 +1,16 @@
 rule Malicious_Python_PostInstall_Command {
     meta:
         author = "RuleLLM"
-        description = "Detects malicious Python post-install commands that download and execute scripts"
-        confidence = 90
-        severity = 85
+        description = "Detects Python setup scripts that override the install command to execute malicious code"
+        confidence = 85
+        severity = 75
+
     strings:
-        $get_url = /get_url\s*=\s*lambda:\s*''\.join\(\[chr\(x\)\s*for\s*x\s*in\s*\[.*\]\]\)/
-        $subprocess_run = /subprocess\.run\(/
-        $curl_command = /curl\s+-\s*[sL]\s+/
-        $bash_command = /bash\s+-\s*s\s+/
+        $cmdclass = "cmdclass"
+        $post_install = "PostInstallCommand"
+        $install_run = "install.run(self)"
+        $custom_command = "def run(self):"
+
     condition:
-        all of them
+        all of ($cmdclass, $post_install) and 2 of ($install_run, $custom_command)
 }

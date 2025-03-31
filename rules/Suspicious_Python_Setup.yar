@@ -1,9 +1,15 @@
 rule Suspicious_Python_Setup {
     meta:
         author = "RuleLLM"
-        description = "Detects suspicious Python setup scripts that may contain malicious code."
+        description = "Detects suspicious setup.py patterns with potential malicious payload"
+        confidence = "80"
+        severity = "70"
+    
     strings:
-        $setup_py = "setup.py"
+        $setup_call = /setup\(/
+        $suspicious_requires = /install_requires\s*=\s*\[.*requests/
+        $version_check = /python_requires\s*=\s*">=3\.[0-9]+"/
+    
     condition:
-        $setup_py
+        all of them and filesize < 10KB
 }
