@@ -1,7 +1,7 @@
 import re
 import logging
 from typing import Optional, List
-from client import LLMClient as BaseClient
+from rulegen.client import LLMClient as BaseClient
 
 class Refiner:
     def __init__(self):
@@ -44,7 +44,7 @@ class Refiner:
     def _get_system_prompt(self, rule_type: str) -> str:
         """Get the system prompt for the specified rule type"""
         if rule_type == "yara":
-            return """You are a YARA rule expert. Your task is to analyze two similar malicious code samples provided by the user and create generic YARA rules that can detect this malware family. The rules should detect based on malicious behavioral characteristics rather than over-relying on static features. Please follow these steps:
+            return """You are a YARA rule expert. Your task is to analyze similar malicious code samples provided by the user and create generic YARA rules that can detect this malware family. The rules should detect based on malicious behavioral characteristics rather than over-relying on static features. Please follow these steps:
 
 1. Deep analysis of malicious behavior:
 - Identify core malicious functionality and behavioral patterns

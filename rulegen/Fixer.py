@@ -5,7 +5,7 @@ from typing import Optional, List, Tuple
 import yara
 import logging
 import re
-from client import LLMClient as BaseClient
+from rulegen.client import LLMClient as BaseClient
 
 class Fixer:
     def __init__(self):

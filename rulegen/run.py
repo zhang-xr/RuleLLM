@@ -23,10 +23,10 @@ def process(input_file: str, output_dir: str, rule_type: str = "yara"):
     rule_ext = ".yar" if rule_type == "yara" else ".yaml"
 
     # Set up logging
-    log_file = os.path.join(output_dir, f"process_{rule_type}.log")
+    log_file = os.path.join(output_dir, f"rulegen_{rule_type}.log")
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
+        format='%(levelname)s %(name)s: %(message)s',
         handlers=[
             logging.FileHandler(log_file),
             logging.StreamHandler()
