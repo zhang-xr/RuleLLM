@@ -1,11 +1,12 @@
-from Generator import Generator
-from Refiner import Refiner
-from Fixer import Fixer
 import json
 import os
 import re
 import logging
 import argparse
+from rulegen.Generator import Generator
+from rulegen.Refiner import Refiner
+from rulegen.Fixer import Fixer
+
 
 def process(input_file: str, output_dir: str, rule_type: str = "yara"):
     """
@@ -94,22 +95,51 @@ def process(input_file: str, output_dir: str, rule_type: str = "yara"):
                     
             for rule_idx, rule in enumerate(individual_rules, 1):
                 fixed_rule, errors = fixer.fix_rule(rule, rule_type=rule_type)
-                base_name = f"cluster{cluster_id}_{rule_idx}"
+                
+                # Default fallback name
+                rule_name = f"cluster{cluster_id}_{rule_idx}"
+                
+                # Extract rule name based on rule type
                 if fixed_rule:
-                    output_file = os.path.join(output_dir, f"{base_name}{rule_ext}")
+                    if rule_type == "yara":
+                        # Extract YARA rule name (e.g., "rule Malware_Family_XYZ {" -> "Malware_Family_XYZ")
+                        name_match = re.search(r'rule\s+([a-zA-Z0-9_]+)', fixed_rule)
+                        if name_match:
+                            rule_name = name_match.group(1)
+                    else:  # semgrep
+                        # Extract Semgrep rule id (e.g., "- id: malicious_code_pattern" -> "malicious_code_pattern")
+                        id_match = re.search(r'id:\s*([a-zA-Z0-9_.-]+)', fixed_rule)
+                        if id_match:
+                            rule_name = id_match.group(1)
+                
+                # Remove any potentially problematic characters from filename
+                rule_name = re.sub(r'[^\w.-]', '_', rule_name)
+                
+                if fixed_rule:
+                    output_file = os.path.join(output_dir, f"{rule_name}{rule_ext}")
+                    # Check if filename already exists and append index if needed
+                    file_counter = 1
+                    original_name = rule_name
+                    while os.path.exists(output_file):
+                        rule_name = f"{original_name}_{file_counter}"
+                        output_file = os.path.join(output_dir, f"{rule_name}{rule_ext}")
+                        file_counter += 1
+                        
                     with open(output_file, 'w') as f:
                         f.write(fixed_rule)
+                    logging.info(f"Generated rule file: {rule_name}{rule_ext}")
                 else:
-                    output_file = os.path.join(output_dir, f"{base_name}_invalid.txt")
+                    output_file = os.path.join(output_dir, f"{rule_name}_invalid.txt")
                     with open(output_file, 'w') as f:
                         f.write(f"{rule}\n\nErrors:\n" + "\n".join(errors))
+                    logging.info(f"Invalid rule: {rule_name}_invalid.txt")
 
     logging.info(f"Completed processing all clusters with {rule_type} rules")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate and fix rules for malware clusters")
     parser.add_argument("--input", default="cluster/malware_clusters.json", help="Path to clusters JSON file")
-    parser.add_argument("--output", default="output/rules", help="Base directory for output files")
+    parser.add_argument("--output", default="rules", help="Base directory for output files")
     parser.add_argument("--rule-type", default="yara", choices=["yara", "semgrep"], help="Type of rules to generate")
     
     args = parser.parse_args()
